@@ -1,7 +1,12 @@
 import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 /**
@@ -16,9 +21,11 @@ public class Main extends Application {
   // Window dimensions in pixels
   private static final int SCENE_WIDTH = 400;
   private static final int SCENE_HEIGHT = 300;
-
+  private static final String S1TEXT = "Fahrenheit -> Celsius";
+  private static final String F_TO_C_PROMPT = "Enter 'F'";
+  private static final String BUTTON_TEXT = "Convert";
   // Text used for both the window title bar and the on-screen label
-  private static final String TITLE = "Hello There: ";
+  //private static final String TITLE = "Hello There: ";
 
   /**
    * Application entry point. JavaFX requires calling launch(), which
@@ -37,15 +44,39 @@ public class Main extends Application {
   @Override
   public void start(Stage stage) {
     // Root layout — StackPane centers its children by default
-    StackPane root = new StackPane(new Label(TITLE + "Label"));
+    //StackPane root = new StackPane(new Label(TITLE + "Label"));
+    Label s1Label = new Label(S1TEXT);
+    TextField s1Input = new TextField();
+    s1Input.setPromptText(F_TO_C_PROMPT);
+    //TODO: set somekind of padding for elements
+
+    Button s1Button = new Button(BUTTON_TEXT);
+    Label s1Result = new Label();
+
+    int spacing = 12;
+
+    VBox s1Root = new VBox(spacing, s1Label, s1Input, s1Button, s1Result);
+    s1Input.setPrefWidth(200);
+    s1Root.setAlignment(Pos.CENTER);
+    s1Root.setPadding(new Insets(30));
+
+    //Scene scene = new Scene(s1Root, SCENE_WIDTH, SCENE_HEIGHT);
+
+
+
+
+
 
     // Scene holds the layout and defines the window size
-    Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
+    Scene scene = new Scene(s1Root, SCENE_WIDTH, SCENE_HEIGHT);
 
     //TODO: add something fun!
-
-    stage.setTitle(TITLE + "title"); // text shown in the OS title bar
+    s1Button.setOnAction(e ->{
+      s1Result.setText("BLAH LAL");
+    });
+    stage.setTitle(S1TEXT + "title"); // text shown in the OS title bar
     stage.setScene(scene);
     stage.show();                    // make the window visible
   }
 }
+// ./gradlew run

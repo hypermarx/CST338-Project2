@@ -24,6 +24,7 @@ public class Main extends Application {
   private static final String S1TEXT = "Fahrenheit -> Celsius";
   private static final String F_TO_C_PROMPT = "Enter 'F'";
   private static final String BUTTON_TEXT = "Convert";
+  private static final String INVALID_MESSAGE = "Invalid Response";
   // Text used for both the window title bar and the on-screen label
   //private static final String TITLE = "Hello There: ";
 
@@ -72,11 +73,21 @@ public class Main extends Application {
 
     //TODO: add something fun!
     s1Button.setOnAction(e ->{
-      s1Result.setText("BLAH LAL");
+      String input = s1Input.getText();
+      try {
+        double fahrenheit = Double.parseDouble(input);
+        s1Result.setText(String.format("%.2f'c",TemperatureCoverters.FarenheitToCelsius(fahrenheit)));
+      }catch(NumberFormatException ex){
+        s1Result.setText(String.format("%s%s ", INVALID_MESSAGE, input));
+
+      }
+      //s1Result.setText("BLAH LAL");
     });
     stage.setTitle(S1TEXT + "title"); // text shown in the OS title bar
     stage.setScene(scene);
     stage.show();                    // make the window visible
   }
+
+
 }
 // ./gradlew run

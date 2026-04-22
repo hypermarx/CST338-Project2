@@ -8,8 +8,8 @@ group = 'com.daclink'
 version = '1.0-SNAPSHOT'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 javafx {
@@ -33,4 +33,10 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+run {
+    jvmArgs = [
+            '--enable-native-access=javafx.graphics,ALL-UNNAMED',
+            '--add-opens', 'java.base/java.lang=ALL-UNNAMED'
+    ]
 }

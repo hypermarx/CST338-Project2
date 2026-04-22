@@ -35,8 +35,8 @@ public class Main extends Application {
    */
   @Override
   public void start(Stage stage) {
-
-
+    stage.setScene(LoginScene.getScene(stage));
+    stage.show();
   }
 
 }

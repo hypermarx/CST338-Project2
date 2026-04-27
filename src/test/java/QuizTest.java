@@ -12,7 +12,7 @@ public class QuizTest {
 
     @BeforeEach
     void setUp(){
-        Quiz quiz = new Quiz("0001");
+        Quiz quiz = new Quiz();
     }
 
     @AfterEach

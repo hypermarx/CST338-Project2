@@ -23,13 +23,16 @@ public class Quiz {
 
     /**
      * Take each question in the quiz
+     * @param answers An ArrayList of Boolean ArrayLists; Each inner arraylist represents the
+     *                answers given for the question at its index.
      * @return Total score for quiz
      */
-    public float take(){
-        for(Question q : questions){
-
+    public float take(ArrayList<ArrayList<Boolean>> answers){
+        float score = 0;
+        for(int i = 0; i < this.questions.size(); i++){
+            score += questions.get(i).answer(answers.get(i));
         }
-        return 0;
+        return score;
     }
 
     //Question class is tied to quiz and thus only accessible within quiz
@@ -65,7 +68,7 @@ public class Quiz {
          *                (can be changed based on implementation for multiple answers)
          * @return score for question
          */
-        public float Answer(ArrayList<Boolean> answers){
+        public float answer(ArrayList<Boolean> answers){
             //Get the type of question. Scoring is based on type.
             //If type is SINGLE_ANSWER, answers should only have one "True" in it.
             //As long as the user's answer is a correct answer, it should return 1.

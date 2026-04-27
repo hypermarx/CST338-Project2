@@ -1,3 +1,9 @@
+/**
+ * Description: The Log in Scene for users to sign in to their pre-existing account on our website.
+ * April 26, 2026
+ * @author Anjelina Jasso
+ */
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -12,6 +18,7 @@ import javafx.stage.Stage;
 public class LoginScene {
     public static Scene getScene(Stage stage) {
         Label title = new Label("Login");
+        Label errorLabel = new Label("");
         TextField userName = new TextField();
         userName.setPromptText("Username");
         PasswordField password = new PasswordField();
@@ -25,13 +32,22 @@ public class LoginScene {
         signUpBtn.setOnAction(event -> {
             stage.setScene(SignUpScene.getScene(stage));
         });
+        loginBtn.setOnAction(event -> {
+            if (userName.getText().isEmpty() || password.getText().isEmpty()) {
+                errorLabel.setVisible(true);
+                errorLabel.setText("Please complete all fields.");
+            } else {
+                errorLabel.setVisible(false);
+                //check if the username & pass is in the database
+            }
+        });
 
         //for testing purposes
         createYourOwnQuiz.setOnAction(event -> {
             stage.setScene(createYourOwenQuiz.getScene(stage));
         });
         //get rid of create YourOwnQuiz when home is made
-        VBox s1Root = new VBox(10, title, userName, password, loginBtn, signUpBtn, createYourOwnQuiz);
+        VBox s1Root = new VBox(10, title, userName, password, errorLabel, loginBtn, signUpBtn, createYourOwnQuiz);
         s1Root.setAlignment(Pos.CENTER);
         s1Root.setPadding(new Insets(30));
 

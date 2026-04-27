@@ -24,6 +24,16 @@ public class DatabaseManager {
         return new DatabaseManager();
     }
 
+    public void close() {
+        conn = null;
+    }
+
+    static void resetForTesting(){
+        if(conn != null){
+            conn = null;
+        }
+    }
+
     //Passwords are not currently hashed; Fix later
     /**
      * Create a user; Username must be unique.

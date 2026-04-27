@@ -33,13 +33,12 @@ public class Quiz {
     }
 
     //Question class is tied to quiz and thus only accessible within quiz
-    public static class Question {
+    private static class Question {
     /*Questions can also have their own score instead of all being worth an equal amount, if wanted,
     in which case implementation would be slightly different*/
 
         enum Type{
-            SINGLE_CORRECT,
-            MULTIPLE_CORRECT,
+            SINGLE_ANSWER,
             MULTIPLE_ANSWER
         }
 
@@ -47,13 +46,17 @@ public class Quiz {
         private String prompt;
         private HashMap<String, Boolean> answers;
 
+        /**
+         * Type is an enum; Can be Type.SINGLE_ANSWER, Type.MULTIPLE_ANSWER
+         * @param type
+         * @param prompt
+         * @param answers
+         */
         Question(Type type, String prompt, HashMap<String, Boolean> answers){
             this.type = type;
             this.prompt = prompt;
             this.answers = answers;
         }
-        /* Values in key should correspond to indices in answer, indicating whether each answer is
-        correct or incorrect. */
 
 
         /**
@@ -62,8 +65,13 @@ public class Quiz {
          *                (can be changed based on implementation for multiple answers)
          * @return score for question
          */
-        public float Answer(boolean[] answers){
-            //Behavior should depend on type enum
+        public float Answer(ArrayList<Boolean> answers){
+            //Get the type of question. Scoring is based on type.
+            //If type is SINGLE_ANSWER, answers should only have one "True" in it.
+            //As long as the user's answer is a correct answer, it should return 1.
+            //If type is MULTIPLE_ANSWER, each answer is weighted an equal amount (1/AnswerCount)
+            //Every answer should either give (1/AnswerCount) points, or zero, depending on whether
+            //it was correct or not. Use answers.size() to get answercount.
             return 0;
         }
 

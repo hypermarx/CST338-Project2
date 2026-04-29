@@ -137,6 +137,11 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Delete a user by ID. Cannot be reversed.
+     * @param userID
+     * @return
+     */
     public boolean deleteUser(int userID){
         try{
             PreparedStatement pstmt = conn.prepareStatement(

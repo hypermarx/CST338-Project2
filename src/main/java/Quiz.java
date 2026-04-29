@@ -17,8 +17,8 @@ public class Quiz {
         return questions;
     }
 
-    private void addQuestion(Question.Type type, String prompt, HashMap<String, Boolean> answers){
-        questions.add(new Question(type, prompt, answers));
+    private void addQuestion(Question.Type type, String prompt){
+        questions.add(new Question(type, prompt));
     }
 
     /**

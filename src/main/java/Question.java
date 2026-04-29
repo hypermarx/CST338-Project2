@@ -12,32 +12,48 @@ public class Question {
 
         private Type type;
         private String prompt;
-        private HashMap<String, Boolean> answers;
+        private ArrayList<Answer> answers;
 
         /**
          * Type is an enum; Can be Type.SINGLE_ANSWER, Type.MULTIPLE_ANSWER
          * @param type
          * @param prompt
-         * @param answers Text for the answer, true/false as to whether it's correct
          */
-        public Question(Type type, String prompt, HashMap<String, Boolean> answers){
+        public Question(Type type, String prompt){
             this.type = type;
             this.prompt = prompt;
-            this.answers = answers;
         }
 
+
+        public void addAnswer(Answer answer){
+            answers.add(answer);
+        }
 
         /**
          * @param answers Indexes that are marked as answers
          * @return score for question
          */
         public float answer(ArrayList<Integer> answers){
-            //Get the type of question. Scoring is based on type.
-            //If type is SINGLE_ANSWER, answers should only have one "True" in it.
-            //As long as the user's answer is a correct answer, it should return 1.
-            //If type is MULTIPLE_ANSWER, each answer is weighted an equal amount (1/AnswerCount)
-            //Every answer should either give (1/AnswerCount) points, or zero, depending on whether
-            //it was correct or not. Use answers.size() to get answercount.
+            if(type == Type.SINGLE_ANSWER){
+                if(this.answers.get(answers.getFirst()).isCorrect()){
+                    return 1;
+                }
+                return 0;
+            }
+            if(type == Type.MULTIPLE_ANSWER){
+                float score = 0;
+                for(int i = 0; i < this.answers.size(); i++){
+                    if(answers.contains(i)){
+                        if(this.answers.get(i).isCorrect()){
+                            score += 1;
+                        }
+                        else{
+                            score -= 1;
+                        }
+                    }
+                }
+                return Math.max(0, score) / this.answers.size();
+            }
             return 0;
         }
     }

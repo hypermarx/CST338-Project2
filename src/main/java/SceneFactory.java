@@ -8,19 +8,6 @@ import java.net.URL;
 
 public class SceneFactory {
 
-    public enum SceneType{
-        LOGIN_REGISTRATION,
-        TAKE_QUIZ,
-        SELECT_QUIZ;
-
-        public boolean isStateless() {
-           if(this.equals(LOGIN_REGISTRATION) || this.equals(SELECT_QUIZ)){
-               return true;
-           }
-           return false;
-        }
-    }
-
     public static Scene create(SceneType type, Stage stage){
         return switch(type){
             case LOGIN_REGISTRATION -> loadScene("/fxml/login.fxml");

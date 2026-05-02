@@ -1,18 +1,18 @@
 import java.sql.*;
 
 public class DatabaseManager {
+
+    private static DatabaseManager instance;
     private static Connection conn = null;
 
 
     private DatabaseManager(){
-        if(conn == null){
-            String url = "jdbc:sqlite:quiz.db";
-            try{
-                conn = DriverManager.getConnection(url);
-            }
-            catch(SQLException e){
-                System.out.println(e.getStackTrace());
-            }
+        String url = "jdbc:sqlite:quiz.db";
+        try{
+            conn = DriverManager.getConnection(url);
+        }
+        catch(SQLException e){
+            System.out.println(e.getStackTrace());
         }
     }
 
@@ -21,7 +21,11 @@ public class DatabaseManager {
      * @return instance of databaseManager, singleton
      */
     public static DatabaseManager getInstance(){
-        return new DatabaseManager();
+        if(conn == null) {
+            instance = new DatabaseManager();
+            return instance;
+        }
+        return instance;
     }
 
     public void close() {

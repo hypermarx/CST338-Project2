@@ -9,7 +9,7 @@ public class SceneManager {
 
     private final Stage stage;
 
-    private final Map<SceneFactory.SceneType, Scene> cache = new EnumMap<>(SceneFactory.SceneType.class);
+    private final Map<SceneType, Scene> cache = new EnumMap<>(SceneType.class);
 
     private SceneManager(Stage stage){
         this.stage = stage;
@@ -28,14 +28,13 @@ public class SceneManager {
         return instance;
     }
 
-    public void navigateTo(SceneFactory.SceneType type){
-        if(!type.isStateless()) {
-            Scene scene = cache.computeIfAbsent(type,
-                    t -> SceneFactory.create(type, stage));
-            stage.setScene(scene);
-        }
-        else{
-            stage.setScene(SceneFactory.create(type, stage));
-        }
+    public void navigateTo(SceneType type){
+        Scene scene = cache.computeIfAbsent(type,
+                t -> SceneFactory.create(type, stage));
+        stage.setScene(scene);
+    }
+
+    public void navigateFresh(SceneType type){
+        stage.setScene(SceneFactory.create(type, stage));
     }
 }

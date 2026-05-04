@@ -1,18 +1,18 @@
 import java.sql.*;
 
 public class DatabaseManager {
+
+    private static DatabaseManager instance;
     private static Connection conn = null;
 
 
     private DatabaseManager(){
-        if(conn == null){
-            String url = "jdbc:sqlite:quiz.db";
-            try{
-                conn = DriverManager.getConnection(url);
-            }
-            catch(SQLException e){
-                System.out.println(e.getStackTrace());
-            }
+        String url = "jdbc:sqlite:quiz.db";
+        try{
+            conn = DriverManager.getConnection(url);
+        }
+        catch(SQLException e){
+            System.out.println(e.getStackTrace());
         }
     }
 
@@ -21,7 +21,11 @@ public class DatabaseManager {
      * @return instance of databaseManager, singleton
      */
     public static DatabaseManager getInstance(){
-        return new DatabaseManager();
+        if(conn == null) {
+            instance = new DatabaseManager();
+            return instance;
+        }
+        return instance;
     }
 
     public void close() {
@@ -153,6 +157,24 @@ public class DatabaseManager {
         catch(SQLException e){
             System.out.println(e.getStackTrace());
             return false;
+        }
+    }
+
+    public int login(String username, String password){
+        try{
+            PreparedStatement pstmt = conn.prepareStatement(
+              "SELECT user_id FROM user WHERE username = ? AND password = ?"
+            );
+            pstmt.setString(1, username);
+            pstmt.setString(2, password);
+            ResultSet rs = pstmt.executeQuery();
+            if(rs.next()){
+                return rs.getInt(1);
+            }
+            return -1;
+        } catch (SQLException e) {
+            System.out.println(e.getStackTrace());
+            return -1;
         }
     }
 }

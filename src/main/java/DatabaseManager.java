@@ -1,4 +1,5 @@
 import java.sql.*;
+import java.util.ArrayList;
 
 public class DatabaseManager {
 
@@ -176,5 +177,81 @@ public class DatabaseManager {
             System.out.println(e.getStackTrace());
             return -1;
         }
+    }
+
+    /**
+     * Get all IDs of quizzes belonging to a user
+     * @param uid
+     * @return an ArrayList of ids; Can be empty
+     */
+    public ArrayList<Integer> getQuizzes(int uid){
+        ArrayList<Integer> result = new ArrayList<>();
+        try{
+            PreparedStatement pstmt = conn.prepareStatement(
+                    "SELECT subject_id FROM subject WHERE owner_id = ?"
+            );
+            pstmt.setInt(1, uid);
+            ResultSet rs = pstmt.executeQuery();
+            while(rs.next()){
+                result.add(rs.getInt(1));
+            }
+            return result;
+        } catch (SQLException e) {
+            System.out.println(e.getStackTrace());
+            return result;
+        }
+    }
+
+    /**
+     * Get a quiz by ID
+     * @param quizid
+     * @return a quiz object containing the questions. Returns null if
+     */
+    public Quiz getQuizbyID(int quizid){
+        try{
+            PreparedStatement pstmt = conn.prepareStatement(
+                    "SELECT question, question_id, type FROM question WHERE subject = ?"
+            );
+            pstmt.setInt(1, quizid);
+            ResultSet rs = pstmt.executeQuery();
+            Quiz quiz = new Quiz(quizid);
+            while(rs.next()){
+                String prompt = rs.getString(1);
+                int qid = rs.getInt(2);
+                QuestionType type = QuestionType.valueOf(rs.getString(3));
+                quiz.addQuestion(
+                        new Question(qid, type, prompt)
+                );
+            }
+            return quiz;
+        }
+        catch (SQLException e){
+            System.out.println(e.getStackTrace());
+            return null;
+        }
+    }
+
+    /**
+     *
+     * @param quizid
+     * @param question
+     * @return Success
+     */
+    public boolean addQuestion(int quizid, Question question){
+        return false;
+        //Add question by ID; Use enum.name() to send to database.
+        //Add all answers using the question ID; No need for an addanswer method as questions are sent
+        //as packages from the source. Maybe.
+    }
+
+    /**
+     *
+     * @param questionID
+     * @return success
+     */
+    public boolean deleteQuestion(int questionID){
+        return false;
+        //delete question by ID
+        //delete associated answers because why keep them around
     }
 }

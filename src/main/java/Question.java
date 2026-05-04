@@ -1,16 +1,9 @@
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class Question {
-    /*Questions can also have their own score instead of all being worth an equal amount, if wanted,
-    in which case implementation would be slightly different*/
 
-        public enum Type{
-            SINGLE_ANSWER,
-            MULTIPLE_ANSWER
-        }
-
-        private Type type;
+    private int questionID;
+        private QuestionType type;
         private String prompt;
         private ArrayList<Answer> answers;
 
@@ -19,7 +12,13 @@ public class Question {
          * @param type
          * @param prompt
          */
-        public Question(Type type, String prompt){
+        public Question(QuestionType type, String prompt){
+            this.type = type;
+            this.prompt = prompt;
+        }
+
+        public Question(int questionID, QuestionType type, String prompt){
+            this.questionID = questionID;
             this.type = type;
             this.prompt = prompt;
         }
@@ -34,13 +33,13 @@ public class Question {
          * @return score for question
          */
         public float answer(ArrayList<Integer> answers){
-            if(type == Type.SINGLE_ANSWER){
+            if(type == QuestionType.SINGLE_ANSWER){
                 if(this.answers.get(answers.getFirst()).isCorrect()){
                     return 1;
                 }
                 return 0;
             }
-            if(type == Type.MULTIPLE_ANSWER){
+            if(type == QuestionType.MULTIPLE_ANSWER){
                 float score = 0;
                 for(int i = 0; i < this.answers.size(); i++){
                     if(answers.contains(i)){

@@ -159,4 +159,22 @@ public class DatabaseManager {
             return false;
         }
     }
+
+    public int login(String username, String password){
+        try{
+            PreparedStatement pstmt = conn.prepareStatement(
+              "SELECT user_id FROM user WHERE username = ? AND password = ?"
+            );
+            pstmt.setString(1, username);
+            pstmt.setString(2, password);
+            ResultSet rs = pstmt.executeQuery();
+            if(rs.next()){
+                return rs.getInt(1);
+            }
+            return -1;
+        } catch (SQLException e) {
+            System.out.println(e.getStackTrace());
+            return -1;
+        }
+    }
 }

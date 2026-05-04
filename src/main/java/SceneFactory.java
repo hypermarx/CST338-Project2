@@ -10,9 +10,10 @@ public class SceneFactory {
 
     public static Scene create(SceneType type, Stage stage){
         return switch(type){
-            case LOGIN_REGISTRATION -> loadScene("/fxml/login.fxml");
-            case TAKE_QUIZ -> loadScene("/fxml/takeQuiz.fxml");
-            case SELECT_QUIZ -> loadScene("/fxml/selectQuiz.fxml");
+            case LOGIN -> loadScene("/resources/Login.fxml");
+            case REGISTRATION -> loadScene("/resources/register.fxml");
+            case TAKE_QUIZ -> loadScene("/resources/takeQuiz.fxml");
+            case SELECT_QUIZ -> loadScene("/resources/selectQuiz.fxml");
         };
     }
 
@@ -22,7 +23,7 @@ public class SceneFactory {
             throw new IllegalArgumentException("FXML not found " + fxmlPath);
         }
         try{
-            FXMLLoader loader = new FXMLLoader();
+            FXMLLoader loader = new FXMLLoader(url);
             Parent root = loader.load();
             return new Scene(root);
         } catch (IOException e) {

@@ -29,13 +29,12 @@ public class SceneManager {
     }
 
     public void navigateTo(SceneType type){
-        if(!type.isStateless()) {
-            Scene scene = cache.computeIfAbsent(type,
-                    t -> SceneFactory.create(type, stage));
-            stage.setScene(scene);
-        }
-        else{
-            stage.setScene(SceneFactory.create(type, stage));
-        }
+        Scene scene = cache.computeIfAbsent(type,
+                t -> SceneFactory.create(type, stage));
+        stage.setScene(scene);
+    }
+
+    public void navigateFresh(SceneType type){
+        stage.setScene(SceneFactory.create(type, stage));
     }
 }

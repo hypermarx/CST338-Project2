@@ -8,24 +8,12 @@ import java.net.URL;
 
 public class SceneFactory {
 
-    public enum SceneType{
-        LOGIN_REGISTRATION,
-        TAKE_QUIZ,
-        SELECT_QUIZ;
-
-        public boolean isStateless() {
-           if(this.equals(LOGIN_REGISTRATION) || this.equals(SELECT_QUIZ)){
-               return true;
-           }
-           return false;
-        }
-    }
-
     public static Scene create(SceneType type, Stage stage){
         return switch(type){
-            case LOGIN_REGISTRATION -> loadScene("/fxml/login.fxml");
-            case TAKE_QUIZ -> loadScene("/fxml/takeQuiz.fxml");
-            case SELECT_QUIZ -> loadScene("/fxml/selectQuiz.fxml");
+            case LOGIN -> loadScene("/Login.fxml");
+            case REGISTRATION -> loadScene("/register.fxml");
+            case TAKE_QUIZ -> loadScene("/takeQuiz.fxml");
+            case SELECT_QUIZ -> loadScene("/selectQuiz.fxml");
         };
     }
 
@@ -35,8 +23,10 @@ public class SceneFactory {
             throw new IllegalArgumentException("FXML not found " + fxmlPath);
         }
         try{
-            FXMLLoader loader = new FXMLLoader();
+            FXMLLoader loader = new FXMLLoader(url);
             Parent root = loader.load();
+            /*Controller controller = loader.getController();
+            controller.setUserID(root.getUserData());*/
             return new Scene(root);
         } catch (IOException e) {
             throw new RuntimeException("Failed to load" + e);

@@ -2,6 +2,7 @@ import javafx.fxml.FXML;
 import javafx.scene.Scene;
 
 public class SelectQuizController {
+    int uid = SessionManager.getInstance().getUserID();
     //Add items like @FXML private Button AAAAA; (matches fx:id = "AAAAA")
 
     @FXML

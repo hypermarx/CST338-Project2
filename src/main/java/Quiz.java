@@ -26,6 +26,10 @@ public class Quiz {
         questions.add(question);
     }
 
+    public int getUid() {
+        return uid;
+    }
+
     /**
      * Take each question in the quiz and return the final score
      * @param answers An ArrayList of Boolean ArrayLists; Each inner arraylist represents the

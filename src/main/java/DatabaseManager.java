@@ -205,7 +205,7 @@ public class DatabaseManager {
     /**
      * Get a quiz by ID
      * @param quizid
-     * @return a quiz object containing the questions. Returns null if
+     * @return a quiz object containing all the questions in the quiz.
      */
     public Quiz getQuizbyID(int quizid){
         try{
@@ -232,26 +232,161 @@ public class DatabaseManager {
     }
 
     /**
-     *
+     * Add a question by ID. Does not add any answers.
      * @param quizid
      * @param question
-     * @return Success
+     * @return question ID
      */
-    public boolean addQuestion(int quizid, Question question){
-        return false;
-        //Add question by ID; Use enum.name() to send to database.
-        //Add all answers using the question ID; No need for an addanswer method as questions are sent
-        //as packages from the source. Maybe.
+    public int addQuestion(int quizid, Question question){
+        try{
+            PreparedStatement pstmt = conn.prepareStatement(
+                    "INSERT INTO question(question, subject, type) VALUES(?, ?, ?)"
+            );
+            pstmt.setString(1, question.getPrompt());
+            pstmt.setInt(2, quizid);
+            pstmt.setString(3, question.getType().name());
+            pstmt.executeUpdate();
+            ResultSet rs = pstmt.getGeneratedKeys();
+            if(rs.next()){
+                return rs.getInt(1);
+            }
+            return -1;
+        }
+        catch (SQLException e){
+            System.out.println(e.getStackTrace());
+            return -1;
+        }
     }
 
     /**
-     *
+     * Change a question's prompt, and whether it's multiple or single answer
+     * @param questionID
+     * @return success
+     */
+    public boolean editQuestion(int questionID, Question question){
+        try{
+            PreparedStatement pstmt = conn.prepareStatement(
+                    "UPDATE question SET (question, type) VALUES(?, ?) WHERE question_id = ?"
+            );
+            pstmt.setString(1, question.getPrompt());
+            pstmt.setString(2, question.getType().name());
+            pstmt.setInt(3, questionID);
+            return(pstmt.executeUpdate() == 1);
+        }
+        catch (SQLException e){
+            System.out.println(e.getStackTrace());
+            return false;
+        }
+    }
+
+    /**
+     * Deletes a question by ID, as well as the associated answers.
+     * Deletion of the item in the associated question in relevant quiz
+     * to ensure matching the database properly must be handled in the relevant controller.
      * @param questionID
      * @return success
      */
     public boolean deleteQuestion(int questionID){
-        return false;
-        //delete question by ID
-        //delete associated answers because why keep them around
+        try{
+            PreparedStatement pstmt = conn.prepareStatement(
+                    "DELETE FROM question WHERE question_id = ?"
+            );
+            PreparedStatement ansStmt = conn.prepareStatement(
+                    "DELETE FROM answer WHERE question = ?"
+            );
+            pstmt.setInt(1, questionID);
+            ansStmt.setInt(1, questionID);
+            return pstmt.execute() && ansStmt.execute();
+        }
+        catch (SQLException e){
+            System.out.println(e.getStackTrace());
+            return false;
+        }
+    }
+
+    /**
+     * Add an answer
+     * @param answer
+     * @return ID of the answer
+     */
+    public int addAnswer(Answer answer, int QuestionID){
+        try {
+            PreparedStatement pstmt = conn.prepareStatement(
+                    "INSERT INTO answer(question, isCorrect, answer_text) VALUES (?, ?, ?)"
+            );
+            pstmt.setInt(1, QuestionID);
+            pstmt.setBoolean(2, answer.isCorrect());
+            pstmt.setString(3, answer.getText());
+            pstmt.executeUpdate();
+            ResultSet rs = pstmt.getGeneratedKeys();
+            if(rs.next()){
+                return rs.getInt(1);
+            }
+            return -1;
+        }
+        catch (SQLException e){
+            System.out.println(e.getStackTrace());
+            return -1;
+        }
+    }
+
+    /**
+     * Update an answer
+     * @param answer
+     * @param answerID
+     * @return success
+     */
+    public boolean updateAnswer(Answer answer, int answerID){
+        try{
+            PreparedStatement pstmt = conn.prepareStatement(
+                    "UPDATE answer SET(isCorrect, answer_text) VALUES(?, ?) WHERE answer_id = ?"
+            );
+            pstmt.setBoolean(1, answer.isCorrect());
+            pstmt.setString(2, answer.getText());
+            pstmt.setInt(3, answerID);
+            return pstmt.executeUpdate() == 1;
+        }
+        catch (SQLException e){
+            System.out.println(e.getStackTrace());
+            return false;
+        }
+    }
+
+    public boolean deleteAnswer(int ansID){
+        try{
+            PreparedStatement pstmt = conn.prepareStatement(
+                    "DELETE FROM answer WHERE answer_id = ?"
+            );
+            pstmt.setInt(1, ansID);
+            return pstmt.executeUpdate() == 1;
+        }
+        catch (SQLException e){
+            System.out.println(e.getStackTrace());
+            return false;
+        }
+    }
+
+    /**
+     * Deletes a quiz, as well as associated questions.
+     * @param quiz
+     * @return
+     */
+    public boolean deleteQuiz(Quiz quiz){
+        try{
+            PreparedStatement pstmt = conn.prepareStatement(
+                    "DELETE FROM subject WHERE owner_id = ?"
+            );
+            pstmt.setInt(quiz.getUid(), 1);
+            boolean result = pstmt.execute();
+            //Delete questions and answers
+            for(Question q : quiz.getQuestions()){
+                deleteQuestion(q.getQuestionID());
+            }
+            return result;
+        }
+        catch (SQLException e){
+            System.out.println(e.getStackTrace());
+            return false;
+        }
     }
 }

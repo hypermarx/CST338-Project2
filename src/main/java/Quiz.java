@@ -4,10 +4,7 @@ import java.util.HashMap;
 public class Quiz {
     private ArrayList<Question> questions;
     private int uid;
-
-    public Quiz(){
-        questions = new ArrayList<>();
-    }
+    private String subject = "";
 
     public Quiz(int uid){
         questions = new ArrayList<>();
@@ -28,6 +25,14 @@ public class Quiz {
 
     public int getUid() {
         return uid;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
     }
 
     /**

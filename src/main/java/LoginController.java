@@ -26,7 +26,9 @@ public class LoginController {
 
         passwordField.clear();
 
-        if(db.login(username, password) != -1) {
+        int uid = db.login(username, password);
+        if(uid != -1) {
+            SessionManager.getInstance().setUserID(uid);
             SceneManager.getInstance().navigateFresh(SceneType.SELECT_QUIZ);
         }
         else{

@@ -8,12 +8,12 @@ public class DatabaseManager {
 
 
     private DatabaseManager(){
-        String url = "jdbc:sqlite:quiz.db";
+        String url = System.getProperty("app.db.url", "jdbc:sqlite:quiz.db");
         try{
             conn = DriverManager.getConnection(url);
         }
         catch(SQLException e){
-            System.out.println(e.getStackTrace());
+            throw new RuntimeException("Failed to connect to database", e);
         }
     }
 
@@ -27,6 +27,86 @@ public class DatabaseManager {
             return instance;
         }
         return instance;
+    }
+
+    public void initSchemaForTests(){
+        try {
+            Statement stmt = conn.createStatement();
+            stmt.execute(
+                    """
+                        create table user
+                        (
+                            user_id  integer
+                                constraint user_pk
+                                    primary key autoincrement,
+                            password text,
+                            admin    boolean,
+                            username text
+                                constraint username
+                                    unique
+                        );
+                        """);
+            stmt.execute(
+                    """
+                            create table subject
+                                    (
+                                        owner_id   integer
+                                            constraint ownerid_fk
+                                                references user,
+                                        visibility text,
+                                        subject    text,
+                                        subject_id integer
+                                            constraint subject_pk
+                                                primary key autoincrement
+                                    );
+            
+                        """);
+            stmt.execute(
+                    """
+                            create table access
+                                                    (
+                                                        user_id      integer
+                                                            constraint userid___fk
+                                                                references user,
+                                                        access_level text,
+                                                        subject_id   integer
+                                                            constraint subjectid___fk
+                                                                references subject
+                                                    );
+            
+                        """);
+            stmt.execute(
+                    """
+                           create table question
+                                                   (
+                                                       question    text,
+                                                       question_id integer
+                                                           constraint question_pk
+                                                               primary key autoincrement,
+                                                       subject     integer
+                                                           constraint question___fk
+                                                               references subject,
+                                                       type        TEXT
+                                                   ); 
+                        """);
+            stmt.execute(
+                    """
+                           create table answer
+                                                   (
+                                                       question    integer
+                                                           constraint question___fk
+                                                               references question,
+                                                       isCorrect   boolean,
+                                                       answer_text text,
+                                                       answer_id   integer
+                                                           constraint answer_pk
+                                                               primary key autoincrement
+                                                   ); 
+            
+                        """);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void close() {
@@ -65,7 +145,7 @@ public class DatabaseManager {
             return result;
         }
         catch(SQLException e){
-            System.out.println(e.getStackTrace());
+            e.printStackTrace();
             return -1;
         }
     }
@@ -80,7 +160,7 @@ public class DatabaseManager {
     public void updateUser(int userID, String username, String password, boolean isAdmin){
         try {
             PreparedStatement pstmt = conn.prepareStatement(
-                    "UPDATE user SET (username, password, admin) VALUES (?, ?, ?) WHERE userID = ?"
+                    "UPDATE user SET (username, password, admin) = (?, ?, ?) WHERE user_id = ?"
             );
             pstmt.setString(1, username);
             pstmt.setString(2, password);
@@ -89,7 +169,7 @@ public class DatabaseManager {
             pstmt.execute();
         }
         catch(SQLException e){
-            System.out.println(e.getStackTrace());
+            e.printStackTrace();
         }
     }
 
@@ -106,15 +186,17 @@ public class DatabaseManager {
             );
             pstmt.setInt(1, userID);
             ResultSet rs = pstmt.executeQuery();
-            rs.next();
-            return new User(
-                    rs.getInt(1),
-                    rs.getString(2),
-                    rs.getBoolean(3)
-            );
+            if(rs.next()) {
+                return new User(
+                        rs.getInt(1),
+                        rs.getString(2),
+                        rs.getBoolean(3)
+                );
+            }
+            throw(new RuntimeException("Failed to find user"));
         }
         catch(SQLException e){
-            System.out.println(e.getStackTrace());
+            e.printStackTrace();
             throw(new RuntimeException("Failed to find user"));
         }
     }
@@ -137,7 +219,7 @@ public class DatabaseManager {
             return -1;
         }
         catch(SQLException e){
-            System.out.println(e.getStackTrace());
+            e.printStackTrace();
             return -1;
         }
     }
@@ -145,19 +227,19 @@ public class DatabaseManager {
     /**
      * Delete a user by ID. Cannot be reversed.
      * @param userID
-     * @return
+     * @return success
      */
-    public boolean deleteUser(int userID){
+    public void deleteUser(int userID){
         try{
             PreparedStatement pstmt = conn.prepareStatement(
                     "DELETE FROM user WHERE user_id = ?"
             );
             pstmt.setInt(1, userID);
-            return pstmt.execute();
+            pstmt.execute();
         }
         catch(SQLException e){
-            System.out.println(e.getStackTrace());
-            return false;
+            e.printStackTrace();
+            throw new RuntimeException("User deletion failed");
         }
     }
 
@@ -174,7 +256,7 @@ public class DatabaseManager {
             }
             return -1;
         } catch (SQLException e) {
-            System.out.println(e.getStackTrace());
+            e.printStackTrace();
             return -1;
         }
     }
@@ -184,7 +266,7 @@ public class DatabaseManager {
      * @param uid
      * @return an ArrayList of ids; Can be empty
      */
-    public ArrayList<Integer> getQuizzes(int uid){
+    public ArrayList<Integer> getQuizzesByUID(int uid){
         ArrayList<Integer> result = new ArrayList<>();
         try{
             PreparedStatement pstmt = conn.prepareStatement(
@@ -197,8 +279,33 @@ public class DatabaseManager {
             }
             return result;
         } catch (SQLException e) {
-            System.out.println(e.getStackTrace());
+            e.printStackTrace();
             return result;
+        }
+    }
+
+    /**
+     * Add a quiz to the database
+     * Does not add the questions in the quiz
+     * @return the ID of the quiz
+     */
+    public int addQuiz(Quiz quiz){
+        try{
+            PreparedStatement pstmt = conn.prepareStatement(
+                    "INSERT INTO subject(subject, owner_id) VALUES(?, ?)",
+                    Statement.RETURN_GENERATED_KEYS
+            );
+            pstmt.setString(1, quiz.getSubject());
+            pstmt.setInt(2, quiz.getUid());
+            pstmt.executeUpdate();
+            ResultSet rs = pstmt.getGeneratedKeys();
+            if(rs.next()){
+                return(rs.getInt(1));
+            }
+            return -1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return -1;
         }
     }
 
@@ -206,6 +313,7 @@ public class DatabaseManager {
      * Get a quiz by ID
      * @param quizid
      * @return a quiz object containing all the questions in the quiz.
+     * Just returns the quiz if there are no questions.
      */
     public Quiz getQuizbyID(int quizid){
         try{
@@ -214,20 +322,31 @@ public class DatabaseManager {
             );
             pstmt.setInt(1, quizid);
             ResultSet rs = pstmt.executeQuery();
+            pstmt = conn.prepareStatement("SELECT subject FROM subject WHERE subject_id = ?");
+            pstmt.setInt(1, quizid);
+
+            ResultSet subject = pstmt.executeQuery();
             Quiz quiz = new Quiz(quizid);
-            while(rs.next()){
+            if(subject.next()){
+                quiz.setSubject(subject.getString(1));
+            }
+
+            if(!rs.next()){
+                return quiz;
+            }
+            do {
                 String prompt = rs.getString(1);
                 int qid = rs.getInt(2);
                 QuestionType type = QuestionType.valueOf(rs.getString(3));
                 quiz.addQuestion(
                         new Question(qid, type, prompt)
                 );
-            }
+            } while(rs.next());
             return quiz;
         }
         catch (SQLException e){
-            System.out.println(e.getStackTrace());
-            return null;
+            e.printStackTrace();
+            throw new RuntimeException("Unable to find a quiz with the associated ID");
         }
     }
 
@@ -240,7 +359,8 @@ public class DatabaseManager {
     public int addQuestion(int quizid, Question question){
         try{
             PreparedStatement pstmt = conn.prepareStatement(
-                    "INSERT INTO question(question, subject, type) VALUES(?, ?, ?)"
+                    "INSERT INTO question(question, subject, type) VALUES(?, ?, ?)",
+                    Statement.RETURN_GENERATED_KEYS
             );
             pstmt.setString(1, question.getPrompt());
             pstmt.setInt(2, quizid);
@@ -253,7 +373,7 @@ public class DatabaseManager {
             return -1;
         }
         catch (SQLException e){
-            System.out.println(e.getStackTrace());
+            e.printStackTrace();
             return -1;
         }
     }
@@ -266,7 +386,7 @@ public class DatabaseManager {
     public boolean editQuestion(int questionID, Question question){
         try{
             PreparedStatement pstmt = conn.prepareStatement(
-                    "UPDATE question SET (question, type) VALUES(?, ?) WHERE question_id = ?"
+                    "UPDATE question SET (question, type) = (?, ?) WHERE question_id = ?"
             );
             pstmt.setString(1, question.getPrompt());
             pstmt.setString(2, question.getType().name());
@@ -274,7 +394,7 @@ public class DatabaseManager {
             return(pstmt.executeUpdate() == 1);
         }
         catch (SQLException e){
-            System.out.println(e.getStackTrace());
+            e.printStackTrace();
             return false;
         }
     }
@@ -286,7 +406,7 @@ public class DatabaseManager {
      * @param questionID
      * @return success
      */
-    public boolean deleteQuestion(int questionID){
+    public void deleteQuestion(int questionID){
         try{
             PreparedStatement pstmt = conn.prepareStatement(
                     "DELETE FROM question WHERE question_id = ?"
@@ -296,11 +416,12 @@ public class DatabaseManager {
             );
             pstmt.setInt(1, questionID);
             ansStmt.setInt(1, questionID);
-            return pstmt.execute() && ansStmt.execute();
+            pstmt.execute();
+            ansStmt.execute();
         }
         catch (SQLException e){
-            System.out.println(e.getStackTrace());
-            return false;
+            e.printStackTrace();
+            throw new RuntimeException("Question deletion failed");
         }
     }
 
@@ -312,7 +433,8 @@ public class DatabaseManager {
     public int addAnswer(Answer answer, int QuestionID){
         try {
             PreparedStatement pstmt = conn.prepareStatement(
-                    "INSERT INTO answer(question, isCorrect, answer_text) VALUES (?, ?, ?)"
+                    "INSERT INTO answer(question, isCorrect, answer_text) VALUES (?, ?, ?)",
+                    Statement.RETURN_GENERATED_KEYS
             );
             pstmt.setInt(1, QuestionID);
             pstmt.setBoolean(2, answer.isCorrect());
@@ -325,7 +447,7 @@ public class DatabaseManager {
             return -1;
         }
         catch (SQLException e){
-            System.out.println(e.getStackTrace());
+            e.printStackTrace();
             return -1;
         }
     }
@@ -339,7 +461,7 @@ public class DatabaseManager {
     public boolean updateAnswer(Answer answer, int answerID){
         try{
             PreparedStatement pstmt = conn.prepareStatement(
-                    "UPDATE answer SET(isCorrect, answer_text) VALUES(?, ?) WHERE answer_id = ?"
+                    "UPDATE answer SET(isCorrect, answer_text) = (?, ?) WHERE answer_id = ?"
             );
             pstmt.setBoolean(1, answer.isCorrect());
             pstmt.setString(2, answer.getText());
@@ -347,46 +469,47 @@ public class DatabaseManager {
             return pstmt.executeUpdate() == 1;
         }
         catch (SQLException e){
-            System.out.println(e.getStackTrace());
+            e.printStackTrace();
             return false;
         }
     }
 
-    public boolean deleteAnswer(int ansID){
+    public void deleteAnswer(int ansID){
         try{
             PreparedStatement pstmt = conn.prepareStatement(
                     "DELETE FROM answer WHERE answer_id = ?"
             );
             pstmt.setInt(1, ansID);
-            return pstmt.executeUpdate() == 1;
+            pstmt.executeUpdate();
         }
         catch (SQLException e){
-            System.out.println(e.getStackTrace());
-            return false;
+            e.printStackTrace();
+            throw new RuntimeException("Answer deletion failed");
         }
     }
 
     /**
      * Deletes a quiz, as well as associated questions.
      * @param quiz
-     * @return
+     * @param quizID
+     * @return success
      */
-    public boolean deleteQuiz(Quiz quiz){
+    public void deleteQuiz(Quiz quiz, int quizID){
         try{
             PreparedStatement pstmt = conn.prepareStatement(
                     "DELETE FROM subject WHERE owner_id = ?"
             );
-            pstmt.setInt(quiz.getUid(), 1);
-            boolean result = pstmt.execute();
+            pstmt.setInt(quizID, 1);
+            pstmt.execute();
             //Delete questions and answers
             for(Question q : quiz.getQuestions()){
                 deleteQuestion(q.getQuestionID());
             }
-            return result;
+            pstmt.execute();
         }
         catch (SQLException e){
-            System.out.println(e.getStackTrace());
-            return false;
+            e.printStackTrace();
+            throw new RuntimeException("Quiz deletion failed");
         }
     }
 }

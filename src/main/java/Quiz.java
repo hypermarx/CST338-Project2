@@ -3,22 +3,31 @@ import java.util.HashMap;
 
 public class Quiz {
     private ArrayList<Question> questions;
+    private int uid;
 
     public Quiz(){
         questions = new ArrayList<>();
+    }
+
+    public Quiz(int uid){
+        questions = new ArrayList<>();
+        this.uid = uid;
     }
 
     public int getQuestionCount(){
         return questions.size();
     }
 
-    //Private because intended for use only within quiz.take()
-    private ArrayList<Question> getQuestions(){
+    public ArrayList<Question> getQuestions(){
         return questions;
     }
 
-    private void addQuestion(Question.Type type, String prompt){
-        questions.add(new Question(type, prompt));
+    public void addQuestion(Question question){
+        questions.add(question);
+    }
+
+    public int getUid() {
+        return uid;
     }
 
     /**

@@ -6,6 +6,8 @@ import java.util.function.UnaryOperator;
 
 public class RegisterController {
     @FXML
+    private Label miscError;
+    @FXML
     private TextField usernameField;
     @FXML
     private PasswordField passwordField;
@@ -33,6 +35,7 @@ public class RegisterController {
         db = DatabaseManager.getInstance();
         lengthError.setManaged(false);
         confirmError.setManaged(false);
+        miscError.setManaged(false);
 
         usernameField.setTextFormatter(new TextFormatter<>(noSpace));
         passwordField.setTextFormatter(new TextFormatter<>(noSpace));
@@ -72,6 +75,10 @@ public class RegisterController {
         if(uid != -1){
             SessionManager.getInstance().setUserID(uid);
             SceneManager.getInstance().navigateFresh(SceneType.SELECT_QUIZ);
+        }
+        else{
+            miscError.setManaged(true);
+            miscError.setVisible(true);
         }
     }
 

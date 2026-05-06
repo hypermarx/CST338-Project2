@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class SelectQuizController {
 
-    private final SessionManager manager = SessionManager.getInstance();
+    private SessionManager manager;
 
     @FXML
     private VBox buttonContainer;
@@ -17,11 +17,13 @@ public class SelectQuizController {
     @FXML
     private Button createQuizBtn;
 
-    int uid = manager.getUserID();
+    int uid;
 
     @FXML
     public void initialize(){
+        manager = SessionManager.getInstance();
         DatabaseManager db = DatabaseManager.getInstance();
+        uid = manager.getUserID();
 
         //Get ids of quizzes belong to the user
         //Populate VBox
@@ -40,7 +42,7 @@ public class SelectQuizController {
             //Set behavior of button
             btn.setOnAction(e -> {
                 manager.setQuizID(id);
-                SceneManager.getInstance().navigateTo(SceneType.CREATE_QUIZ);
+                SceneManager.getInstance().navigateFresh(SceneType.CREATE_QUIZ);
             });
 
             //Add button to VBox
@@ -55,7 +57,7 @@ public class SelectQuizController {
         int quizID = db.addQuiz(quiz);
         if(quizID != -1) {
             manager.setQuizID(quizID);
-            SceneManager.getInstance().navigateTo(SceneType.CREATE_QUIZ);
+            SceneManager.getInstance().navigateFresh(SceneType.CREATE_QUIZ);
         }
     }
 }

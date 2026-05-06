@@ -1,7 +1,7 @@
 public class SessionManager {
     private int userID = -1;
     private static SessionManager instance = null;
-    int quizID = -1;
+    private int quizID = -1;
 
     /**
      * Singleton; One session can exist at a time.

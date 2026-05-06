@@ -32,6 +32,7 @@ public class Main extends Application {
     SceneManager sceneManager = SceneManager.getInstance();
     Scene scene = SceneFactory.create(SceneType.LOGIN, stage);
     stage.setScene(scene);
+    stage.setTitle("Quizweaver");
     stage.show();
   }
 

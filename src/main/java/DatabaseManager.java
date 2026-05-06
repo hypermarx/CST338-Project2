@@ -351,6 +351,32 @@ public class DatabaseManager {
     }
 
     /**
+     * Edit a quiz's name
+     * @param name
+     * @param quizID
+     * @return
+     */
+    public Quiz updateQuiz(String name, int quizID){
+        try{
+            Quiz quiz = new Quiz(quizID);
+            PreparedStatement pstmt = conn.prepareStatement(
+                    "UPDATE subject SET subject = ? WHERE subject_id = ?"
+            );
+            pstmt.setString(1, name);
+            pstmt.setInt(2, quizID);
+            int result = pstmt.executeUpdate();
+            quiz.setSubject(name);
+            if(result < 1){
+                throw new RuntimeException("Error: Failed to update quiz, no rows changed.");
+            }
+            return quiz;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
      * Add a question by ID. Does not add any answers.
      * @param quizid
      * @param question

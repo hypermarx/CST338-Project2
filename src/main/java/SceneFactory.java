@@ -11,9 +11,9 @@ public class SceneFactory {
     public static Scene create(SceneType type, Stage stage){
         return switch(type){
             case LOGIN -> loadScene("/Login.fxml");
-            case REGISTRATION -> loadScene("/register.fxml");
-            case TAKE_QUIZ -> loadScene("/takeQuiz.fxml");
-            case SELECT_QUIZ -> loadScene("/selectQuiz.fxml");
+            case REGISTRATION -> loadScene("/Register.fxml");
+            case CREATE_QUIZ -> loadScene("/CreateQuiz.fxml");
+            case SELECT_QUIZ -> loadScene("/SelectQuiz.fxml");
         };
     }
 
@@ -25,8 +25,6 @@ public class SceneFactory {
         try{
             FXMLLoader loader = new FXMLLoader(url);
             Parent root = loader.load();
-            /*Controller controller = loader.getController();
-            controller.setUserID(root.getUserData());*/
             return new Scene(root);
         } catch (IOException e) {
             throw new RuntimeException("Failed to load" + e);

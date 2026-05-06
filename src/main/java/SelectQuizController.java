@@ -1,27 +1,63 @@
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+
+import java.util.ArrayList;
 
 public class SelectQuizController {
-    int uid = SessionManager.getInstance().getUserID();
-    //Add items like @FXML private Button AAAAA; (matches fx:id = "AAAAA")
+
+    private SessionManager manager;
+
+    @FXML
+    private VBox buttonContainer;
+
+    @FXML
+    private Button createQuizBtn;
+
+    int uid;
 
     @FXML
     public void initialize(){
-        //can put things here that happen after initialization
+        manager = SessionManager.getInstance();
+        DatabaseManager db = DatabaseManager.getInstance();
+        uid = manager.getUserID();
+
+        //Get ids of quizzes belong to the user
+        //Populate VBox
+        ArrayList<Integer> quizIDs = db.getQuizzesByUID(uid);
+        for(Integer id : quizIDs){
+            Quiz quiz = db.getQuizbyID(id);
+            Button btn = new Button();
+
+            //Set visual attributes of button
+            //TODO: Move most of these to a CSS file
+            btn.setText(quiz.getSubject());
+            btn.setFont(Font.font("Trajan Pro", 29));
+            btn.setPrefHeight(66);
+            btn.setPrefWidth(447);
+
+            //Set behavior of button
+            btn.setOnAction(e -> {
+                manager.setQuizID(id);
+                SceneManager.getInstance().navigateFresh(SceneType.CREATE_QUIZ);
+            });
+
+            //Add button to VBox
+            buttonContainer.getChildren().add(0, btn);
+        }
     }
 
-    /* ## Event Handler Methods
-    Any `onAction="#methodName"` in FXML must have a corresponding method in the
-    controller.
-    **FXML:**
-    ```xml
-    <Button text="Save" onAction="#handleSave"/>
-    <Button text="Cancel" onAction="#handleCancel"/>
-
-    Java:
-    @FXML
-    private void handleSave(){
-        //do stuff
+    public void createQuiz(ActionEvent actionEvent) {
+        DatabaseManager db = DatabaseManager.getInstance();
+        Quiz quiz = new Quiz(uid);
+        quiz.setSubject("Untitled quiz");
+        int quizID = db.addQuiz(quiz);
+        if(quizID != -1) {
+            manager.setQuizID(quizID);
+            SceneManager.getInstance().navigateFresh(SceneType.CREATE_QUIZ);
+        }
     }
-     */
 }

@@ -11,11 +11,11 @@
          <cursor>
             <Cursor fx:constant="HAND" />
          </cursor></Button>
-      <PasswordField layoutX="167.0" layoutY="218.0" prefHeight="25.0" prefWidth="268.0" promptText="Password">
+      <PasswordField fx:id="passwordField" layoutX="167.0" layoutY="218.0" prefHeight="25.0" prefWidth="268.0" promptText="Password">
          <cursor>
             <Cursor fx:constant="TEXT" />
          </cursor></PasswordField>
-      <TextField fx:id="UsernameField" layoutX="167.0" layoutY="175.0" prefHeight="25.0" prefWidth="268.0" promptText="Username">
+      <TextField fx:id="usernameField" layoutX="167.0" layoutY="175.0" prefHeight="25.0" prefWidth="268.0" promptText="Username">
          <cursor>
             <Cursor fx:constant="TEXT" />
          </cursor></TextField>

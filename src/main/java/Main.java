@@ -1,4 +1,5 @@
 import javafx.application.Application;
+import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 /**
@@ -28,8 +29,10 @@ public class Main extends Application {
   @Override
   public void start(Stage stage) {
     SceneManager.init(stage);
-    SceneManager scene = SceneManager.getInstance();
-    SceneFactory.create(SceneType.LOGIN, stage);
+    SceneManager sceneManager = SceneManager.getInstance();
+    Scene scene = SceneFactory.create(SceneType.LOGIN, stage);
+    stage.setScene(scene);
+    stage.show();
   }
 
 }
